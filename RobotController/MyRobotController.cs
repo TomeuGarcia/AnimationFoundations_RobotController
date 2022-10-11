@@ -38,7 +38,7 @@ namespace RobotController
         public string Hi()
         {
 
-            string s = "hello world from my Robot Controller";
+            string s = "Hi, we are Adia Campos & Tomeu Garcia, from dll";
             return s;
 
         }
