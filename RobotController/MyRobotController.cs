@@ -5,29 +5,6 @@ using System.Text;
 
 namespace RobotController
 {
-
-    public struct MyQuat
-    {
-
-        public float w;
-        public float x;
-        public float y;
-        public float z;
-    }
-
-    public struct MyVec
-    {
-
-        public float x;
-        public float y;
-        public float z;
-    }
-
-
-
-
-
-
     public class MyRobotController
     {
 
@@ -53,6 +30,11 @@ namespace RobotController
             rot1 = NullQ;
             rot2 = NullQ;
             rot3 = NullQ;
+
+            rot0 = Rotate(rot0, MyVec.up, 73f);
+            rot1 = Rotate(Multiply(rot0, rot1), MyVec.right, -10f);
+            rot2 = Rotate(Multiply(rot1, rot2), MyVec.right, 90f);
+            rot3 = Rotate(Multiply(rot2, rot3), MyVec.right, 30f);
         }
 
 
@@ -160,19 +142,16 @@ namespace RobotController
             }
         }
 
-        internal MyQuat Multiply(MyQuat q1, MyQuat q2) {
-
+        internal MyQuat Multiply(MyQuat q1, MyQuat q2) 
+        {
             //todo: change this so it returns a multiplication:
-            return NullQ;
-
+            return q1 * q2;
         }
 
         internal MyQuat Rotate(MyQuat currentRotation, MyVec axis, float angle)
         {
-
             //todo: change this so it takes currentRotation, and calculate a new quaternion rotated by an angle "angle" radians along the normalized axis "axis"
-            return NullQ;
-
+            return Multiply(currentRotation, MyQuat.FromAxisAngle(axis, angle));
         }
 
 
