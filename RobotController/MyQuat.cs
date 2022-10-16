@@ -5,6 +5,12 @@ namespace RobotController
     public static class Utils
     {
         public static float Deg2Rad = (float)(Math.PI / 180.0);
+        public static float Rad2Deg = 57.2957795f; // 180f / PI
+
+        public static float Clamp(float value, float min, float max)
+        {
+            return value < min ? min : value > max ? max : value;
+        }
     }
         
 
@@ -26,6 +32,20 @@ namespace RobotController
             Normalize();
         }
 
+        public static MyQuat NullQ
+        {
+            get
+            {
+                MyQuat a;
+                a.w = 1;
+                a.x = 0;
+                a.y = 0;
+                a.z = 0;
+                return a;
+
+            }
+        }
+
         public static MyQuat operator *(MyQuat q1, MyQuat q2)
         {
             float w = (q1.w * q2.w) - (q1.x * q2.x) - (q1.y * q2.y) - (q1.z * q2.z);
@@ -35,6 +55,17 @@ namespace RobotController
 
             return new MyQuat(x, y, z, w).Normalize();
         }
+
+        public static MyQuat operator *(float scalar, MyQuat q)
+        {
+            return new MyQuat(scalar * q.x, scalar * q.y, scalar * q.z, scalar * q.w).Normalize();
+        }
+
+        private static MyQuat Add(MyQuat q1, MyQuat q2)
+        {
+            return new MyQuat(q1.x + q2.x, q1.y + q2.y, q1.z + q2.z, q1.w + q2.w).Normalize();
+        }
+
 
         public static MyQuat ToUnityQuaternion(MyQuat myQ)
         {
@@ -51,11 +82,6 @@ namespace RobotController
             return "(" + x + ", " + y + ", " + z + ", " + w + ")";
         }
 
-
-        public static MyQuat Identity()
-        {
-            return new MyQuat(0f, 0f, 0f, 1f);
-        }
 
         public static MyQuat Inverse(MyQuat q)
         {
@@ -89,7 +115,44 @@ namespace RobotController
         {
             float v = (float)Math.Sqrt(1f - (w * w));
             axis = new MyVec(x / v, y / v, z / v);
-            angle = 2f * (float)Math.Acos(w) * Utils.Deg2Rad;
+            angle = 2f * (float)Math.Acos(w) * Utils.Rad2Deg;
+        }
+
+        public static float GetMinAngleBetweenQuaternions(MyQuat q1, MyQuat q2)
+        {
+            float angle = 2f * (float)Math.Acos((q2 * MyQuat.Inverse(q1)).w) * Utils.Rad2Deg;
+            return angle > 180f ? 360f - angle : angle;
+        }
+
+        public static MyQuat Lerp(MyQuat q1, MyQuat q2, float t)
+        {
+            // (1-t) p + t q
+            return Add((1f - t) * q1, t * q2);
+        }
+
+        public static MyQuat Slerp(MyQuat q1, MyQuat q2, float t)
+        {
+            float alpha = GetMinAngleBetweenQuaternions(q1, q2);
+
+            float sinAlpha = (float)Math.Sin(alpha);
+            float q1_t = (float)Math.Sin((1f - t) * alpha);
+            float q2_t = (float)Math.Sin(t * alpha);
+
+            return Add((q1_t / sinAlpha) * q1, (q2_t / sinAlpha) * q2);
+        }
+
+        public static MyQuat FastSlerp(MyQuat q1, MyQuat q2, float t)
+        {
+            float f = 1.0f - 0.7878088f * (float)Math.Sin(GetMinAngleBetweenQuaternions(q1, q2));
+            float k = 0.5069269f;
+            f *= f;
+            k *= f;
+            float b = 2 * k;
+            float c = -3 * k;
+            float d = 1 + k;
+            t = t * (b * t + c) + d;
+
+            return Lerp(q1, q2, t);
         }
 
     }

@@ -15,7 +15,7 @@ namespace RobotController
         public string Hi()
         {
 
-            string s = "Hi, we are Adia Campos & Tomeu Garcia, from dll";
+            string s = "Hi, we are Adrià Campos & Tomeu Garcia, from dll";
             return s;
 
         }
@@ -25,11 +25,13 @@ namespace RobotController
 
         public void PutRobotStraight(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3) {
 
+            startedEx2 = false; // Reset for ex2
+
             //todo: change this, use the function Rotate declared below
-            rot0 = Rotate(NullQ, MyVec.up, 73f);
-            rot1 = Rotate(Multiply(rot0, NullQ), MyVec.right, -10f);
-            rot2 = Rotate(Multiply(rot1, NullQ), MyVec.right, 90f);
-            rot3 = Rotate(Multiply(rot2, NullQ), MyVec.right, 30f);
+            rot0 = Rotate(MyQuat.NullQ, MyVec.up, 73f);
+            rot1 = Rotate(Multiply(rot0, MyQuat.NullQ), MyVec.right, -10f);
+            rot2 = Rotate(Multiply(rot1, MyQuat.NullQ), MyVec.right, 90f);
+            rot3 = Rotate(Multiply(rot2, MyQuat.NullQ), MyVec.right, 30f);
         }
 
 
@@ -39,30 +41,44 @@ namespace RobotController
 
 
         public bool PickStudAnim(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3)
-        {
+        {          
+            if (!startedEx2)
+            {
+                startedEx2 = true;
+                ResetT();
+            }
 
-            bool myCondition = false;
             //todo: add a check for your condition
+            bool myCondition = t < 1f;
 
+            MyQuat initialRot0 = Rotate(MyQuat.NullQ, MyVec.up, 73f);
+            MyQuat initialRot1 = Rotate(Multiply(initialRot0, MyQuat.NullQ), MyVec.right, -10f);
+            MyQuat initialRot2 = Rotate(Multiply(initialRot1, MyQuat.NullQ), MyVec.right, 90f);
+            MyQuat initialRot3 = Rotate(Multiply(initialRot2, MyQuat.NullQ), MyVec.right, 30f);
 
+            MyQuat finalRot0 = Rotate(MyQuat.NullQ, MyVec.up, 40f);
+            MyQuat finalRot1 = Rotate(Multiply(finalRot0, MyQuat.NullQ), MyVec.right, -2f);
+            MyQuat finalRot2 = Rotate(Multiply(finalRot1, MyQuat.NullQ), MyVec.right, 82f);
+            MyQuat finalRot3 = Rotate(Multiply(finalRot2, MyQuat.NullQ), MyVec.right, 9f);
 
             if (myCondition)
             {
                 //todo: add your code here
-                rot0 = NullQ;
-                rot1 = NullQ;
-                rot2 = NullQ;
-                rot3 = NullQ;
+                rot0 = lerpFunctionEx2(initialRot0, finalRot0, t);
+                rot1 = lerpFunctionEx2(initialRot1, finalRot1, t);
+                rot2 = lerpFunctionEx2(initialRot2, finalRot2, t);
+                rot3 = lerpFunctionEx2(initialRot3, finalRot3, t);
 
+                t = RobotController.Utils.Clamp(t + robotSpeedEx2, 0f, 1f);
 
                 return true;
             }
 
-            //todo: remove this once your code works.
-            rot0 = NullQ;
-            rot1 = NullQ;
-            rot2 = NullQ;
-            rot3 = NullQ;
+
+            rot0 = finalRot0;
+            rot1 = finalRot1;
+            rot2 = finalRot2;
+            rot3 = finalRot3;
 
             return false;
         }
@@ -74,6 +90,8 @@ namespace RobotController
 
         public bool PickStudAnimVertical(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3)
         {
+            startedEx2 = false; // Reset for ex2
+
 
             bool myCondition = false;
             //todo: add a check for your condition
@@ -88,10 +106,10 @@ namespace RobotController
             }
 
             //todo: remove this once your code works.
-            rot0 = NullQ;
-            rot1 = NullQ;
-            rot2 = NullQ;
-            rot3 = NullQ;
+            rot0 = MyQuat.NullQ;
+            rot1 = MyQuat.NullQ;
+            rot2 = MyQuat.NullQ;
+            rot3 = MyQuat.NullQ;
 
             return false;
         }
@@ -100,7 +118,7 @@ namespace RobotController
         public static MyQuat GetSwing(MyQuat rot3)
         {
             //todo: change the return value for exercise 3
-            return NullQ;
+            return MyQuat.NullQ;
 
         }
 
@@ -108,7 +126,7 @@ namespace RobotController
         public static MyQuat GetTwist(MyQuat rot3)
         {
             //todo: change the return value for exercise 3
-            return NullQ;
+            return MyQuat.NullQ;
 
         }
 
@@ -123,19 +141,7 @@ namespace RobotController
         internal int TimeSinceMidnight { get { return (DateTime.Now.Hour * 3600000) + (DateTime.Now.Minute * 60000) + (DateTime.Now.Second * 1000) + DateTime.Now.Millisecond; } }
 
 
-        private static MyQuat NullQ
-        {
-            get
-            {
-                MyQuat a;
-                a.w = 1;
-                a.x = 0;
-                a.y = 0;
-                a.z = 0;
-                return a;
 
-            }
-        }
 
         internal MyQuat Multiply(MyQuat q1, MyQuat q2) 
         {
@@ -157,9 +163,16 @@ namespace RobotController
         #endregion
 
 
-
-
-
+        // Exercise 2
+        public float t = 0f;
+        private void ResetT()
+        {
+            t = 0f;
+        }
+        private bool startedEx2 = false;
+        private float robotSpeedEx2 = 0.005f;
+        private delegate MyQuat LerpFunction(MyQuat q1, MyQuat q2, float t);
+        private LerpFunction lerpFunctionEx2 = MyQuat.Lerp;
 
     }
 }
