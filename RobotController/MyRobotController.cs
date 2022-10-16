@@ -26,15 +26,10 @@ namespace RobotController
         public void PutRobotStraight(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3) {
 
             //todo: change this, use the function Rotate declared below
-            rot0 = NullQ;
-            rot1 = NullQ;
-            rot2 = NullQ;
-            rot3 = NullQ;
-
-            rot0 = Rotate(rot0, MyVec.up, 73f);
-            rot1 = Rotate(Multiply(rot0, rot1), MyVec.right, -10f);
-            rot2 = Rotate(Multiply(rot1, rot2), MyVec.right, 90f);
-            rot3 = Rotate(Multiply(rot2, rot3), MyVec.right, 30f);
+            rot0 = Rotate(NullQ, MyVec.up, 73f);
+            rot1 = Rotate(Multiply(rot0, NullQ), MyVec.right, -10f);
+            rot2 = Rotate(Multiply(rot1, NullQ), MyVec.right, 90f);
+            rot3 = Rotate(Multiply(rot2, NullQ), MyVec.right, 30f);
         }
 
 
