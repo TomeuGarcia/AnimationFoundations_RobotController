@@ -11,6 +11,11 @@ namespace RobotController
         {
             return value < min ? min : value > max ? max : value;
         }
+
+        public static float Lerp(float start, float end, float t)
+        {
+            return ((1 - t) * start) + (t * end);
+        }
     }
         
 
@@ -58,7 +63,7 @@ namespace RobotController
 
         public static MyQuat operator *(float scalar, MyQuat q)
         {
-            return new MyQuat(scalar * q.x, scalar * q.y, scalar * q.z, scalar * q.w).Normalize();
+            return new MyQuat(scalar * q.x, scalar * q.y, scalar * q.z, scalar * q.w);
         }
 
         private static MyQuat Add(MyQuat q1, MyQuat q2)
@@ -118,32 +123,53 @@ namespace RobotController
             angle = 2f * (float)Math.Acos(w) * Utils.Rad2Deg;
         }
 
-        public static float GetMinAngleBetweenQuaternions(MyQuat q1, MyQuat q2)
+        public static void GetMinAxisAngleBetweenQuaternions(MyQuat q1, MyQuat q2, out MyVec axis, out float minAngle)
         {
-            float angle = 2f * (float)Math.Acos((q2 * MyQuat.Inverse(q1)).w) * Utils.Rad2Deg;
-            return angle > 180f ? 360f - angle : angle;
+            MyQuat offsetRotation = q2 * MyQuat.Inverse(q1);
+
+            offsetRotation.ToAxisAngle(out axis, out minAngle);
+            minAngle = minAngle > 180f ? 360f - minAngle : minAngle;
         }
 
         public static MyQuat Lerp(MyQuat q1, MyQuat q2, float t)
         {
             // (1-t) p + t q
-            return Add((1f - t) * q1, t * q2);
+            MyVec axis1;
+            float angle1;
+            q1.ToAxisAngle(out axis1, out angle1);
+
+            MyVec axis2;
+            float angle2;
+            q2.ToAxisAngle(out axis2, out angle2);
+
+            MyVec axisT = ((1f - t) * axis1) + (t * axis2);
+            float angleT = ((1f - t) * angle1) + (t * angle2);
+               
+            return MyQuat.FromAxisAngle(axisT, angleT);
         }
 
         public static MyQuat Slerp(MyQuat q1, MyQuat q2, float t)
         {
-            float alpha = GetMinAngleBetweenQuaternions(q1, q2);
+            MyVec axis;
+            float angle;
+            GetMinAxisAngleBetweenQuaternions(q1, q2, out axis, out angle);
 
-            float sinAlpha = (float)Math.Sin(alpha);
-            float q1_t = (float)Math.Sin((1f - t) * alpha);
-            float q2_t = (float)Math.Sin(t * alpha);
+            float sinAlpha = (float)Math.Sin(angle);
+            float q1_t = (float)Math.Sin((1f - t) * angle);
+            float q2_t = (float)Math.Sin(t * angle);
 
             return Add((q1_t / sinAlpha) * q1, (q2_t / sinAlpha) * q2);
         }
 
+
         public static MyQuat FastSlerp(MyQuat q1, MyQuat q2, float t)
         {
-            float f = 1.0f - 0.7878088f * (float)Math.Sin(GetMinAngleBetweenQuaternions(q1, q2));
+            MyVec axis;
+            float angle;
+            GetMinAxisAngleBetweenQuaternions(q1, q2, out axis, out angle);
+
+
+            float f = 1.0f - 0.7878088f * (float)Math.Sin(angle);
             float k = 0.5069269f;
             f *= f;
             k *= f;

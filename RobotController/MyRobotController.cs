@@ -25,13 +25,13 @@ namespace RobotController
 
         public void PutRobotStraight(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3) {
 
-            startedEx2 = false; // Reset for ex2
+            _startedEx2 = false; // Reset for ex2
 
             //todo: change this, use the function Rotate declared below
-            rot0 = Rotate(MyQuat.NullQ, MyVec.up, 73f);
-            rot1 = Rotate(Multiply(rot0, MyQuat.NullQ), MyVec.right, -10f);
-            rot2 = Rotate(Multiply(rot1, MyQuat.NullQ), MyVec.right, 90f);
-            rot3 = Rotate(Multiply(rot2, MyQuat.NullQ), MyVec.right, 30f);
+            rot0 = Rotate(MyQuat.NullQ, MyVec.up, _initialAngle0);
+            rot1 = Rotate(rot0, MyVec.right, _initialAngle1);
+            rot2 = Rotate(rot1, MyVec.right, _initialAngle2);
+            rot3 = Rotate(rot2, MyVec.right, _initialAngle3);
         }
 
 
@@ -42,43 +42,33 @@ namespace RobotController
 
         public bool PickStudAnim(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3)
         {          
-            if (!startedEx2)
+            if (!_startedEx2)
             {
-                startedEx2 = true;
+                _startedEx2 = true;
                 ResetT();
             }
 
             //todo: add a check for your condition
-            bool myCondition = t < 1f;
-
-            MyQuat initialRot0 = Rotate(MyQuat.NullQ, MyVec.up, 73f);
-            MyQuat initialRot1 = Rotate(Multiply(initialRot0, MyQuat.NullQ), MyVec.right, -10f);
-            MyQuat initialRot2 = Rotate(Multiply(initialRot1, MyQuat.NullQ), MyVec.right, 90f);
-            MyQuat initialRot3 = Rotate(Multiply(initialRot2, MyQuat.NullQ), MyVec.right, 30f);
-
-            MyQuat finalRot0 = Rotate(MyQuat.NullQ, MyVec.up, 40f);
-            MyQuat finalRot1 = Rotate(Multiply(finalRot0, MyQuat.NullQ), MyVec.right, -2f);
-            MyQuat finalRot2 = Rotate(Multiply(finalRot1, MyQuat.NullQ), MyVec.right, 82f);
-            MyQuat finalRot3 = Rotate(Multiply(finalRot2, MyQuat.NullQ), MyVec.right, 9f);
+            bool myCondition = t < 1f;          
 
             if (myCondition)
             {
                 //todo: add your code here
-                rot0 = lerpFunctionEx2(initialRot0, finalRot0, t);
-                rot1 = lerpFunctionEx2(initialRot1, finalRot1, t);
-                rot2 = lerpFunctionEx2(initialRot2, finalRot2, t);
-                rot3 = lerpFunctionEx2(initialRot3, finalRot3, t);
+                rot0 = Rotate(MyQuat.NullQ, MyVec.up, Utils.Lerp(_initialAngle0, _ex2FinalAngle0, t));
+                rot1 = Rotate(rot0, MyVec.right, Utils.Lerp(_initialAngle1, _ex2FinalAngle1, t));
+                rot2 = Rotate(rot1, MyVec.right, Utils.Lerp(_initialAngle2, _ex2FinalAngle2, t));
+                rot3 = Rotate(rot2, MyVec.right, Utils.Lerp(_initialAngle3, _ex2FinalAngle3, t));
 
-                t = RobotController.Utils.Clamp(t + robotSpeedEx2, 0f, 1f);
+                t = RobotController.Utils.Clamp(t + _robotSpeedEx2, 0f, 1f);
 
                 return true;
             }
 
 
-            rot0 = finalRot0;
-            rot1 = finalRot1;
-            rot2 = finalRot2;
-            rot3 = finalRot3;
+            rot0 = Rotate(MyQuat.NullQ, MyVec.up, _ex2FinalAngle0);
+            rot1 = Rotate(MyQuat.NullQ, MyVec.right, _ex2FinalAngle1);
+            rot2 = Rotate(MyQuat.NullQ, MyVec.right, _ex2FinalAngle2);
+            rot3 = Rotate(MyQuat.NullQ, MyVec.right, _ex2FinalAngle3);
 
             return false;
         }
@@ -90,7 +80,7 @@ namespace RobotController
 
         public bool PickStudAnimVertical(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3)
         {
-            startedEx2 = false; // Reset for ex2
+            _startedEx2 = false; // Reset for ex2
 
 
             bool myCondition = false;
@@ -163,16 +153,25 @@ namespace RobotController
         #endregion
 
 
+        // Exercise 1
+        private float _initialAngle0 = 73f;
+        private float _initialAngle1 = 350f;
+        private float _initialAngle2 = 90f;
+        private float _initialAngle3 = 30f;
+
         // Exercise 2
         public float t = 0f;
         private void ResetT()
         {
             t = 0f;
         }
-        private bool startedEx2 = false;
-        private float robotSpeedEx2 = 0.005f;
-        private delegate MyQuat LerpFunction(MyQuat q1, MyQuat q2, float t);
-        private LerpFunction lerpFunctionEx2 = MyQuat.Lerp;
+        private bool _startedEx2 = false;
+        private float _robotSpeedEx2 = 0.005f;
+
+        private float _ex2FinalAngle0 = 40f;
+        private float _ex2FinalAngle1 = 358f;
+        private float _ex2FinalAngle2 = 90f;
+        private float _ex2FinalAngle3 = 9f;
 
     }
 }
