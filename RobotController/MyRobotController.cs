@@ -26,6 +26,7 @@ namespace RobotController
         public void PutRobotStraight(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3) {
 
             _startedEx2 = false; // Reset for ex2
+            _startedEx3 = false; // Reset for ex3
 
             //todo: change this, use the function Rotate declared below
             rot0 = Rotate(MyQuat.NullQ, MyVec.up, _initialAngle0);
@@ -41,7 +42,8 @@ namespace RobotController
 
 
         public bool PickStudAnim(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3)
-        {          
+        {
+            _startedEx3 = false; // Reset for ex3
             if (!_startedEx2)
             {
                 _startedEx2 = true;
@@ -81,25 +83,36 @@ namespace RobotController
         public bool PickStudAnimVertical(out MyQuat rot0, out MyQuat rot1, out MyQuat rot2, out MyQuat rot3)
         {
             _startedEx2 = false; // Reset for ex2
-
-
-            bool myCondition = false;
-            //todo: add a check for your condition
-
-
-
-            while (myCondition)
+            if (!_startedEx3)
             {
-                //todo: add your code here
-
-
+                _startedEx3 = true;
+                ResetT();
             }
 
+
+            bool myCondition = t < 1f;
+
+            if (myCondition)
+            {
+                //todo: add your code here
+                rot0 = Rotate(MyQuat.NullQ, MyVec.up, Utils.Lerp(_initialAngle0, _ex2FinalAngle0, t));
+                rot1 = Rotate(rot0, MyVec.right, Utils.Lerp(_initialAngle1, _ex2FinalAngle1, t));
+                rot2 = Rotate(rot1, MyVec.right, Utils.Lerp(_initialAngle2, _ex2FinalAngle2, t));
+                rot3 = Rotate(rot2, MyVec.right, Utils.Lerp(_initialAngle3, _ex2FinalAngle3, t));
+                rot3 = Rotate(rot3, _ex3TwistAxis, Utils.Lerp(_ex3InitialTwistAngle, _ex3FinalTwistAngle, t));
+
+                t = RobotController.Utils.Clamp(t + _robotSpeedEx2, 0f, 1f);
+
+                return true;
+            }
+
+
             //todo: remove this once your code works.
-            rot0 = MyQuat.NullQ;
-            rot1 = MyQuat.NullQ;
-            rot2 = MyQuat.NullQ;
-            rot3 = MyQuat.NullQ;
+            rot0 = Rotate(MyQuat.NullQ, MyVec.up, _ex2FinalAngle0);
+            rot1 = Rotate(MyQuat.NullQ, MyVec.right, _ex2FinalAngle1);
+            rot2 = Rotate(MyQuat.NullQ, MyVec.right, _ex2FinalAngle2);
+            rot3 = Rotate(MyQuat.NullQ, MyVec.right, _ex2FinalAngle3);
+            rot3 = Rotate(rot3, _ex3TwistAxis, _ex3FinalTwistAngle);
 
             return false;
         }
@@ -108,16 +121,14 @@ namespace RobotController
         public static MyQuat GetSwing(MyQuat rot3)
         {
             //todo: change the return value for exercise 3
-            return MyQuat.NullQ;
-
+            return rot3 * MyQuat.Inverse(GetTwist(rot3));
         }
 
 
         public static MyQuat GetTwist(MyQuat rot3)
         {
             //todo: change the return value for exercise 3
-            return MyQuat.NullQ;
-
+            return new MyQuat(_ex3TwistAxis.x * rot3.x, _ex3TwistAxis.y * rot3.y, _ex3TwistAxis.z * rot3.z, rot3.w);
         }
 
 
@@ -172,6 +183,12 @@ namespace RobotController
         private float _ex2FinalAngle1 = 358f;
         private float _ex2FinalAngle2 = 90f;
         private float _ex2FinalAngle3 = 9f;
+
+        // Exercise 3
+        private bool _startedEx3 = false;
+        private static MyVec _ex3TwistAxis = MyVec.up;
+        private float _ex3InitialTwistAngle = 33.617f;
+        private float _ex3FinalTwistAngle = -90f;
 
     }
 }
