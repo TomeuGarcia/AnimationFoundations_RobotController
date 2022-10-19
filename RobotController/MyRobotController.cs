@@ -29,10 +29,10 @@ namespace RobotController
             _startedEx3 = false; // Reset for ex3
 
             //todo: change this, use the function Rotate declared below
-            rot0 = Rotate(MyQuat.NullQ, MyVec.up, _initialAngle0);
-            rot1 = Rotate(rot0, MyVec.right, _initialAngle1);
-            rot2 = Rotate(rot1, MyVec.right, _initialAngle2);
-            rot3 = Rotate(rot2, MyVec.right, _initialAngle3);
+            rot0 = Rotate(MyQuat.NullQ, MyVec.up, _initialAngle[0]);
+            rot1 = Rotate(rot0, MyVec.right, _initialAngle[1]);
+            rot2 = Rotate(rot1, MyVec.right, _initialAngle[2]);
+            rot3 = Rotate(rot2, MyVec.right, _initialAngle[3]);
         }
 
 
@@ -56,10 +56,10 @@ namespace RobotController
             if (myCondition)
             {
                 //todo: add your code here
-                rot0 = Rotate(MyQuat.NullQ, MyVec.up, Utils.Lerp(_initialAngle0, _ex2FinalAngle0, t));
-                rot1 = Rotate(rot0, MyVec.right, Utils.Lerp(_initialAngle1, _ex2FinalAngle1, t));
-                rot2 = Rotate(rot1, MyVec.right, Utils.Lerp(_initialAngle2, _ex2FinalAngle2, t));
-                rot3 = Rotate(rot2, MyVec.right, Utils.Lerp(_initialAngle3, _ex2FinalAngle3, t));
+                rot0 = Rotate(MyQuat.NullQ, MyVec.up, Utils.Lerp(_initialAngle[0], _ex2FinalAngle[0], t));
+                rot1 = Rotate(rot0, MyVec.right, Utils.Lerp(_initialAngle[1], _ex2FinalAngle[1], t));
+                rot2 = Rotate(rot1, MyVec.right, Utils.Lerp(_initialAngle[2], _ex2FinalAngle[2], t));
+                rot3 = Rotate(rot2, MyVec.right, Utils.Lerp(_initialAngle[3], _ex2FinalAngle[3], t));
 
                 t = RobotController.Utils.Clamp(t + _robotSpeedEx2, 0f, 1f);
 
@@ -67,10 +67,10 @@ namespace RobotController
             }
 
 
-            rot0 = Rotate(MyQuat.NullQ, MyVec.up, _ex2FinalAngle0);
-            rot1 = Rotate(MyQuat.NullQ, MyVec.right, _ex2FinalAngle1);
-            rot2 = Rotate(MyQuat.NullQ, MyVec.right, _ex2FinalAngle2);
-            rot3 = Rotate(MyQuat.NullQ, MyVec.right, _ex2FinalAngle3);
+            rot0 = Rotate(MyQuat.NullQ, MyVec.up, _ex2FinalAngle[0]);
+            rot1 = Rotate(rot0, MyVec.right, _ex2FinalAngle[1]);
+            rot2 = Rotate(rot1, MyVec.right, _ex2FinalAngle[2]);
+            rot3 = Rotate(rot2, MyVec.right, _ex2FinalAngle[3]);
 
             return false;
         }
@@ -95,11 +95,12 @@ namespace RobotController
             if (myCondition)
             {
                 //todo: add your code here
-                rot0 = Rotate(MyQuat.NullQ, MyVec.up, Utils.Lerp(_initialAngle0, _ex2FinalAngle0, t));
-                rot1 = Rotate(rot0, MyVec.right, Utils.Lerp(_initialAngle1, _ex2FinalAngle1, t));
-                rot2 = Rotate(rot1, MyVec.right, Utils.Lerp(_initialAngle2, _ex2FinalAngle2, t));
-                rot3 = Rotate(rot2, MyVec.right, Utils.Lerp(_initialAngle3, _ex2FinalAngle3, t));
+                rot0 = Rotate(MyQuat.NullQ, MyVec.up, Utils.Lerp(_initialAngle[0], _ex2FinalAngle[0], t));
+                rot1 = Rotate(rot0, MyVec.right, Utils.Lerp(_initialAngle[1], _ex2FinalAngle[1], t));
+                rot2 = Rotate(rot1, MyVec.right, Utils.Lerp(_initialAngle[2], _ex2FinalAngle[2], t));
+                rot3 = Rotate(rot2, MyVec.right, Utils.Lerp(_initialAngle[3], _ex2FinalAngle[3], t));
                 rot3 = Rotate(rot3, _ex3TwistAxis, Utils.Lerp(_ex3InitialTwistAngle, _ex3FinalTwistAngle, t));
+
 
                 t = RobotController.Utils.Clamp(t + _robotSpeedEx2, 0f, 1f);
 
@@ -108,11 +109,12 @@ namespace RobotController
 
 
             //todo: remove this once your code works.
-            rot0 = Rotate(MyQuat.NullQ, MyVec.up, _ex2FinalAngle0);
-            rot1 = Rotate(MyQuat.NullQ, MyVec.right, _ex2FinalAngle1);
-            rot2 = Rotate(MyQuat.NullQ, MyVec.right, _ex2FinalAngle2);
-            rot3 = Rotate(MyQuat.NullQ, MyVec.right, _ex2FinalAngle3);
+            rot0 = Rotate(MyQuat.NullQ, MyVec.up, _ex2FinalAngle[0]);
+            rot1 = Rotate(rot0, MyVec.right, _ex2FinalAngle[1]);
+            rot2 = Rotate(rot1, MyVec.right, _ex2FinalAngle[2]);
+            rot3 = Rotate(rot2, MyVec.right, _ex2FinalAngle[3]);
             rot3 = Rotate(rot3, _ex3TwistAxis, _ex3FinalTwistAngle);
+           
 
             return false;
         }
@@ -165,10 +167,8 @@ namespace RobotController
 
 
         // Exercise 1
-        private float _initialAngle0 = 73f;
-        private float _initialAngle1 = 350f;
-        private float _initialAngle2 = 90f;
-        private float _initialAngle3 = 30f;
+
+        private float[] _initialAngle = { 73f, 350f, 90f, 30f };
 
         // Exercise 2
         public float t = 0f;
@@ -179,10 +179,7 @@ namespace RobotController
         private bool _startedEx2 = false;
         private float _robotSpeedEx2 = 0.005f;
 
-        private float _ex2FinalAngle0 = 40f;
-        private float _ex2FinalAngle1 = 358f;
-        private float _ex2FinalAngle2 = 90f;
-        private float _ex2FinalAngle3 = 9f;
+        private float[] _ex2FinalAngle = { 40f, 358f, 90f, 9f };
 
         // Exercise 3
         private bool _startedEx3 = false;
