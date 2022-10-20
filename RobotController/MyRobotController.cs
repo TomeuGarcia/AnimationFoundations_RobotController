@@ -52,17 +52,17 @@ namespace RobotController
             }
 
             //todo: add a check for your condition
-            bool myCondition = t < 1f;          
+            bool myCondition = _t < 1f;          
 
             if (myCondition)
             {
                 //todo: add your code here
-                rot0 = Rotate(MyQuat.NullQ, MyVec.up, Utils.Lerp(_initialAngles[0], _ex2FinalAngles[0], t));
-                rot1 = Rotate(rot0, MyVec.right, Utils.Lerp(_initialAngles[1], _ex2FinalAngles[1], t));
-                rot2 = Rotate(rot1, MyVec.right, Utils.Lerp(_initialAngles[2], _ex2FinalAngles[2], t));
-                rot3 = Rotate(rot2, MyVec.right, Utils.Lerp(_initialAngles[3], _ex2FinalAngles[3], t));
+                rot0 = Rotate(MyQuat.NullQ, MyVec.up, Utils.Lerp(_initialAngles[0], _ex2FinalAngles[0], _t));
+                rot1 = Rotate(rot0, MyVec.right, Utils.Lerp(_initialAngles[1], _ex2FinalAngles[1], _t));
+                rot2 = Rotate(rot1, MyVec.right, Utils.Lerp(_initialAngles[2], _ex2FinalAngles[2], _t));
+                rot3 = Rotate(rot2, MyVec.right, Utils.Lerp(_initialAngles[3], _ex2FinalAngles[3], _t));
 
-                t = RobotController.Utils.Clamp(t + _robotMoveSpeed, 0f, 1f);
+                _t = RobotController.Utils.Clamp(_t + _robotMoveSpeed, 0f, 1f);
 
                 return true;
             }
@@ -89,24 +89,23 @@ namespace RobotController
                 ResetT();
             }
 
-            MyQuat localTwist;
 
-
-            bool myCondition = t < 1f;
+            bool myCondition = _t < 1f;
 
             if (myCondition)
             {
-                rot0 = Rotate(MyQuat.NullQ, MyVec.up, Utils.Lerp(_initialAngles[0], _ex2FinalAngles[0], t));
-                rot1 = Rotate(rot0, MyVec.right, Utils.Lerp(_initialAngles[1], _ex2FinalAngles[1], t));
-                rot2 = Rotate(rot1, MyVec.right, Utils.Lerp(_initialAngles[2], _ex2FinalAngles[2], t));
+                rot0 = Rotate(MyQuat.NullQ, MyVec.up, Utils.Lerp(_initialAngles[0], _ex2FinalAngles[0], _t));
+                rot1 = Rotate(rot0, MyVec.right, Utils.Lerp(_initialAngles[1], _ex2FinalAngles[1], _t));
+                rot2 = Rotate(rot1, MyVec.right, Utils.Lerp(_initialAngles[2], _ex2FinalAngles[2], _t));
                 _ex3TempRot2 = rot2;
 
-                localTwist = MyQuat.FromAxisAngle(_ex3TwistAxis, Utils.Lerp(_ex3InitialTwistAngle, _ex3FinalTwistAngle, t));
-                // rot3 will contain localTwist + localSwing, without accumulating rot2, which is added later in GetSwing() and GetTwist()
-                rot3 = Rotate(localTwist, MyVec.right, Utils.Lerp(_initialAngles[3], _ex2FinalAngles[3], t));
+                //_localTwist = MyQuat.FromAxisAngle(_ex3TwistAxis, Utils.Lerp(_ex3InitialTwistAngle, _ex3FinalTwistAngle, _t)); //
+                _localSwing = MyQuat.FromAxisAngle(MyVec.right, Utils.Lerp(_initialAngles[3], _ex2FinalAngles[3], _t));
+                rot3 = Rotate(_localSwing, _ex3TwistAxis, Utils.Lerp(_ex3InitialTwistAngle, _ex3FinalTwistAngle, _t));
+                // rot3 contains localSwing + localTwist, without accumulating rot2, which is added later in GetSwing() and GetTwist()
 
 
-                t = RobotController.Utils.Clamp(t + _robotMoveSpeed, 0f, 1f);
+                _t = RobotController.Utils.Clamp(_t + _robotMoveSpeed, 0f, 1f);
 
                 return true;
             }
@@ -118,9 +117,10 @@ namespace RobotController
             rot2 = Rotate(rot1, MyVec.right, _ex2FinalAngles[2]);
             _ex3TempRot2 = rot2;
 
-            localTwist = MyQuat.FromAxisAngle(_ex3TwistAxis, _ex3FinalTwistAngle);
-            // rot3 will contain localTwist + localSwing, without accumulating rot2, which is added later in GetSwing() and GetTwist()
-            rot3 = Rotate(localTwist, MyVec.right, _ex2FinalAngles[3]);
+            //_localTwist = MyQuat.FromAxisAngle(_ex3TwistAxis, _ex3FinalTwistAngle); //
+            _localSwing = MyQuat.FromAxisAngle(MyVec.right, _ex2FinalAngles[3]);
+            rot3 = Rotate(_localSwing, _ex3TwistAxis, _ex3FinalTwistAngle);
+            // rot3 contains localSwing + localTwist, without accumulating rot2, which is added later in GetSwing() and GetTwist()
 
 
             return false;
@@ -135,7 +135,8 @@ namespace RobotController
         // Obtain the localTwist and pass it to "world" space
         public static MyQuat GetTwist(MyQuat rot3)
         {
-            return _ex3TempRot2 * GetTwistLocal(rot3);
+            return GetSwing(rot3) * GetTwistLocal(rot3);
+            //return _ex3TempRot2 * GetTwistLocal(rot3); // old code, not working properly
         }
 
         // rot3 contains localTwist + localSwing, rotations with different rotation axis, therefore we can obtain the twist part
@@ -180,24 +181,26 @@ namespace RobotController
         private Exercise _currentExercise = Exercise.NONE;
 
         // Exercise 1
-
         private float[] _initialAngles = { 73f, 350f, 94f, 20f };
 
         // Exercise 2
-        public float t = 0f;
+        private float _robotMoveSpeed = 0.002f;
+        private float[] _ex2FinalAngles = { 40f, 360f, 85f, 20f };
+        
+        private float _t = 0f;
         private void ResetT()
         {
-            t = 0f;
+            _t = 0f;
         }
-        private float _robotMoveSpeed = 0.002f;
-
-        private float[] _ex2FinalAngles = { 40f, 360f, 90f, 9f };
 
         // Exercise 3
         private static MyVec _ex3TwistAxis = MyVec.up;
         private float _ex3InitialTwistAngle = 33.617f;
-        private float _ex3FinalTwistAngle = -90f;
+        private float _ex3FinalTwistAngle = -56.4f;
         private static MyQuat _ex3TempRot2;
+        private MyQuat _localSwing;
+        //private MyQuat _localTwist;
+
 
     }
 }

@@ -108,9 +108,11 @@ namespace RobotController
         public static MyQuat FromAxisAngle(MyVec axis, float angle)
         {
             float halfAngle = (angle / 2f) * Utils.Deg2Rad;
-            float x = axis.x * (float)Math.Sin(halfAngle);
-            float y = axis.y * (float)Math.Sin(halfAngle);
-            float z = axis.z * (float)Math.Sin(halfAngle);
+            float sinHalfAngle = (float)Math.Sin(halfAngle);
+
+            float x = axis.x * sinHalfAngle;
+            float y = axis.y * sinHalfAngle;
+            float z = axis.z * sinHalfAngle;
             float w = (float)Math.Cos(halfAngle);
 
             return new MyQuat(x, y, z, w).Normalize();
