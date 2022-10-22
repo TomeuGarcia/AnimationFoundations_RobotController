@@ -41,9 +41,6 @@ namespace RobotController
 
         public static MyVec operator* (MyVec v, MyQuat q)
         {
-            //MyVec qv = new MyVec(q.x, q.y, q.z);
-            //return (2f * MyVec.Dot(qv, v) * qv) + ((q.w * q.w - MyVec.Dot(qv, qv)) * v) + (2f * q.w * MyVec.Cross(qv, v)).Normalize();
-
             MyQuat p = new MyQuat(v.x, v.y, v.z, 0f);
             p = q * p * MyQuat.Inverse(q);
             return new MyVec(p.x, p.y, p.z);

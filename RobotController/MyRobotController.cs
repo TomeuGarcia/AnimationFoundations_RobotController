@@ -136,7 +136,6 @@ namespace RobotController
         public static MyQuat GetTwist(MyQuat rot3)
         {
             return GetSwing(rot3) * GetTwistLocal(rot3);
-            //return _ex3TempRot2 * GetTwistLocal(rot3); // old code, not working properly
         }
 
         // rot3 contains localTwist + localSwing, rotations with different rotation axis, therefore we can obtain the twist part
